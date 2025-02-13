@@ -28,6 +28,7 @@ public class ClassInfo {
         mappings.put("java.lang.Boolean", "BOOLEAN");
         mappings.put("Date", "DATE");
         mappings.put("java.sql.Date", "DATE");
+        mappings.put("java.util.Date", "DATE");
         mappings.put("int", "NUMBER");
         mappings.put("Integer", "NUMBER");
         mappings.put("java.lang.Integer", "NUMBER");
@@ -77,7 +78,11 @@ public class ClassInfo {
         ConstructorInfo firstConstructor = constructors.get(0);
         for (int i = 0; i < firstConstructor.parameters.size(); i++) {
             ParamInfo param = firstConstructor.parameters.get(i);
-            sb.append(param.paramType).append(" ").append( param.paramName);
+            String paramType = param.paramType;
+            if (paramType.equals("java.util.Date")) {
+                paramType = "java.sql.Date";
+            }
+            sb.append(paramType).append(" ").append( param.paramName);
             if (i < firstConstructor.parameters.size() - 1) {
                 sb.append(", ");
             }

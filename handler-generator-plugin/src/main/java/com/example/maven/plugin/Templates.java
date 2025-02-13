@@ -135,6 +135,85 @@ public class Templates {
                 "}\n";
     }
 
+
+    public static String generateMultiExecutorClass(String modelName, String modelQualifiedName,
+            String argsAndTypes, String args) {
+        return "import java.util.stream.Stream;\n" +
+                "import org.kie.api.runtime.KieContainer;\n" +
+                "import org.kie.api.runtime.KieSession;\n" +
+                "import com.fasterxml.jackson.core.JsonProcessingException;\n" +
+                "import com.fasterxml.jackson.databind.ObjectMapper;\n" +
+                "import org.slf4j.Logger;\n" +
+                "import org.slf4j.LoggerFactory;\n" +
+                "\n" +
+                "class OutputGeneric_" + modelName + " {\n" +
+                "    public String output;\n" +
+                "\n" +
+                "    public OutputGeneric_" + modelName + "(String output) {\n" +
+                "        this.output = output;\n" +
+                "    }\n" +
+                "}\n" +
+                "\n" +
+                "public class GenericExecutor_" + modelName + " {\n" +
+                "    static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();\n" +
+                "    private static final Logger logger = LoggerFactory.getLogger(GenericExecutor_" + modelName
+                + ".class);\n" +
+                "    private static KieContainer kieContainer;\n" +
+                "\n" +
+                "    public static KieContainer getContainerInstance() {\n" +
+                "        if (kieContainer == null) {  // First check (no locking)\n" +
+                "            synchronized (GenericExecutor_" + modelName + ".class) {\n" +
+                "                if (kieContainer == null) {  // Second check (with locking)\n" +
+                "                    kieContainer = MyDroolsConfig.kieContainer();\n" +
+                "                }\n" +
+                "            }\n" +
+                "        }\n" +
+                "        return kieContainer;\n" +
+                "    }\n" +
+                "\n" +
+                "    private static String factsToString(Object[] facts) {\n" +
+                "        StringBuilder results = new StringBuilder();\n" +
+                "        results.append(\"[\");\n" +
+                "        boolean first = true;\n" +
+                "        for (Object fact : facts) {\n" +
+                "            try {\n" +
+                "                String json = OBJECT_MAPPER.writeValueAsString(fact);\n" +
+                "                if (!first) results.append(\", \");\n" +
+                "                results.append(json);\n" +
+                "            } catch (JsonProcessingException e) {\n" +
+                "                logger.error(\"Error converting fact to JSON\", e);\n" +
+                "            }\n" +
+                "            first = false;\n" +
+                "        }\n" +
+                "        results.append(\"]\");\n" +
+                "        return results.toString();\n" +
+                "    }\n" +
+                "\n" +
+                "    public static Class getOutputClass() {\n" +
+                "        return OutputGeneric_" + modelName + ".class;\n" +
+                "    }\n" +
+                "    private boolean first = true;\n" + 
+                "    private KieSession kieSession=null;\n" +
+                "\n" +
+                " public Stream<OutputGeneric_" + modelName +  "> process(" + argsAndTypes + ") {\n" +
+                "     if (first) {\n" +
+                "         kieSession = getContainerInstance().newKieSession();\n" +
+                "         first = false;\n" +
+                "     } \n" +
+                "     Object obj = new " + modelQualifiedName + "(" + args + ");\n" +
+                "     kieSession.insert(obj);\n" +
+                "     return Stream.empty();\n" +
+                " }\n\n" + 
+                " public Stream<OutputGeneric_" + modelName +"> endPartition() {\n" +
+                "    kieSession.fireAllRules();\n" +
+                "    Object[] facts = kieSession.getObjects(x -> !(x instanceof " + modelQualifiedName + ") ).toArray(new Object[0]);\n" +
+                "    kieSession.dispose();\n" +
+                "    return Stream.of(new OutputGeneric_" + modelName + "( factsToString(facts) ));\n" +
+                " }\n\n" +
+                "}\n";
+    }
+
+
     /**
      * Genera el código SQL para crear o reemplazar la función Java en Snowflake.
      *

@@ -36,13 +36,11 @@ cat $TEMP_FOLDER/target/generated-sources/handlers/registrations.sql  >> $TEMP_F
 
 # Upload the files to Snowflake
 # and perform all handlers registration
-
-
-if [ -z "$SNOWSQL_PRIVATE_KEY" ]; then
-    ~/bin/snowsql -f deploy.sql  >> $HERE/log.txt 2>&1
+if [ -z "${SNOWSQL_PRIVATE_KEY_PATH}" ]; then
+    /opt/snowsql -f $TEMP_FOLDER/deploy.sql  >> $HERE/log.txt 2>&1   
 else
-    echo "Key pair provided"
-    ~/bin/snowsql --private-key-path $SNOWSQL_PRIVATE_KEY -f deploy.sql  >> $HERE/log.txt 2>&1
+    echo "Using private key path"
+    /opt/snowsql --private-key-path ${SNOWSQL_PRIVATE_KEY_PATH} -f $TEMP_FOLDER/deploy.sql  >> $HERE/log.txt 2>&1
 fi
 echo "Entire repository extracted to: $TEMP_FOLDER" >> $HERE/log.txt
 

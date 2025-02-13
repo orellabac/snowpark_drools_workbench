@@ -64,7 +64,7 @@ public class ProcessSourcesMojo extends AbstractMojo {
             // Because DataModels will always have a Default Constructor and we don't want to generate a handler for that
             if (classInfo.constructors.size() == 0)
                 continue;
-            String content = Templates.generateExecutorClass(classInfo.simpleName, classInfo.fullName,
+            String content = Templates.generateMultiExecutorClass(classInfo.simpleName, classInfo.fullName,
                     classInfo.getArgsAndTypes(), classInfo.getArgs());
             Path targetPath = Paths
                     .get(outputDirectory.getAbsolutePath() + "/GenericExecutor_" + classInfo.simpleName + ".java");

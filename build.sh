@@ -7,4 +7,4 @@ docker build -t custom-drools-workbench-snowsql \
     --build-arg SNOWSQL_ROLE=your_role \
     --build-arg SNOWSQL_WAREHOUSE=your_warehouse \
     --build-arg SNOWSQL_PRIVATE_KEY_PASSPHRASE=key_passphrase \
-    --build-arg SNOWSQL_PRIVATE_KEY="<path to key file or empty to use user-password" .
+    --build-arg SNOWSQL_PRIVATE_KEY_PATH="<path to key file or empty to use user-password" .
